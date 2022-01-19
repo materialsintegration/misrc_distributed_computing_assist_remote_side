@@ -1,0 +1,3 @@
+# misrc_distributed_computing_assist_remote_side
+
+外部計算機資源利用ワークフローの内、WebAPI形式で使用するための遠隔側スクリプト
