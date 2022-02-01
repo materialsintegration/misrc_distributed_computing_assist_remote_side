@@ -252,7 +252,11 @@ class mi_remote(object):
 
         #print("status_code = %s(%s)"%(ret.status_code, ret.text))
         if self.request_status is not False:
-            print("code = %s / message = %s"%(ret.json()["errors"][0]["code"], ret.json()["errors"][0]["message"]))
+            try:
+                print("code = %s / message = %s"%(ret.json()["errors"][0]["code"], ret.json()["errors"][0]["message"]))
+            except:
+                print(ret.text)
+            return False
         #self.result_out(ret)
         if ("errors" in ret.json()) is True:
             if ret.json()["errors"][0]["code"] == 200:
@@ -620,26 +624,32 @@ def main():
     token = None
     baseUrl = None
     auth_type = True
+    portnum = "50443"
     for i in range(len(sys.argv)):
         if i == 1:
-            print("site id = %s"%sys.argv[1])
+            #print("site id = %s"%sys.argv[1])
             siteid = sys.argv[1]
         elif i == 2:
-            print("base url = %s:50443"%sys.argv[2])
+            #print("base url = %s:50443"%sys.argv[2])
             baseUrl = sys.argv[2]
         elif i == 3:
             if sys.argv[3] == "login":
                 token = getToken(baseUrl.split("//")[1])
             else:
                 token = sys.argv[3]
-            print(" token = %s"%token)
+            #print(" token = %s"%token)
         elif i >= 4:
             if sys.argv[i] == "debug":
                 print("debug print: yes")
                 debug_print = True
+            if sys.argv[i].startswith("port") is True:
+                try:
+                    portnum = sys.argv[i].split(":")[1]
+                except:
+                    pass
             if sys.argv[i].startswith("retry") is True:
                 try:
-                    items = sys.argv[i].split(":")
+                    items = sys.argv[i].split(":")[1]
                     items = items.split(",")
                     retry_count = int(items[0])
                     retry_interval = float(items[1])
@@ -659,7 +669,10 @@ def main():
                     pass
                 #auth_type = True
 
-    api_prog = mi_remote(siteid, "%s:50443"%baseUrl, token, retry_count=retry_count, retry_interval=retry_interval)
+    print("site id = %s"%siteid)
+    print("base url = %s:%s"%(baseUrl, portnum))
+    print(" token = %s"%token)
+    api_prog = mi_remote(siteid, "%s:%s"%(baseUrl, portnum), token, retry_count=retry_count, retry_interval=retry_interval)
 
     api_prog.request_status = None
     api_prog.debug_print = debug_print
