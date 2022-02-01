@@ -97,7 +97,7 @@ class mi_remote(object):
         self.retry_count = retry_count
         self.retry_interval = retry_interval
         self.timeout = timeout
-        self.no_auth = False
+        self.auth_type = False
         signal.signal(signal.SIGINT, self.signal_handler)
 
     def signal_handler(self, signum, frame):
@@ -128,7 +128,7 @@ class mi_remote(object):
                 break
             if method == "get":
                 try:
-                    res = session.get(weburl, data=invdata, headers=headers, timeout=timeout, verify=self.no_auth)
+                    res = session.get(weburl, data=invdata, headers=headers, timeout=timeout, verify=self.auth_type)
                     sessionError = False
                 except requests.ConnectTimeout:
                     res = timeout_object()
@@ -144,7 +144,7 @@ class mi_remote(object):
                     res.text = "%sによりURL(%s)に接続できませんでした。"%(e, weburl)
             elif method == "post":
                 try:
-                    res = session.post(weburl, headers=headers, json=json, timeout=timeout, verify=self.no_auth)
+                    res = session.post(weburl, headers=headers, json=json, timeout=timeout, verify=self.auth_type)
                     sessionError = False
                 except requests.ConnectTimeout:
                     res = timeout_object()
@@ -160,7 +160,7 @@ class mi_remote(object):
                     res.text = "%sによりURL(%s)に接続できませんでした。"%(e, weburl)
             elif method == "put":
                 try:
-                    res = session.put(weburl, headers=headers, json=json, timeout=timeout, verify=self.no_auth)
+                    res = session.put(weburl, headers=headers, json=json, timeout=timeout, verify=self.auth_type)
                     sessionError = False
                 except requests.ConnectTimeout:
                     res = timeout_object()
@@ -441,7 +441,7 @@ class mi_remote(object):
             #data['stderr'] = {'exists':'no'}
 
         print("%s:send request %s/calc-end"%(datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S"), self.base_url))
-        ret = self.session.post("%s/calc-end"%self.base_url, headers=self.headers, json=data, verify=self.no_auth)
+        ret = self.session.post("%s/calc-end"%self.base_url, headers=self.headers, json=data, verify=self.auth_type)
         ret = self.apiAccess("post", "%s/calc-end"%self.base_url, headers=self.headers, json=data)
 
         #self.result_out(ret)
@@ -619,7 +619,7 @@ def main():
     siteid = None
     token = None
     baseUrl = None
-    no_auth = False
+    auth_type = True
     for i in range(len(sys.argv)):
         if i == 1:
             print("site id = %s"%sys.argv[1])
@@ -650,20 +650,20 @@ def main():
                     items = sys.argv[i].split(":")
                     items = items.split(",")
                     if len(items) == 2:
-                        no_auth = items[1]
-                        print("SSL 中間認証局(%s)を指定します。"%no_auth)
+                        auth_type = items[1]
+                        print("SSL 中間認証局情報(%s)を指定します。"%auth_type)
                     else:
-                        no_auth = True
+                        auth_type = False
                         print("SSL チェックをしない状態で接続します。")
                 except:
                     pass
-                no_auth = True
+                auth_type = True
 
     api_prog = mi_remote(siteid, "%s:50443"%baseUrl, token, retry_count=retry_count, retry_interval=retry_interval)
 
     api_prog.request_status = None
     api_prog.debug_print = debug_print
-    api_prog.no_auth = no_auth
+    api_prog.auth_type = auth_type
     while True:
         if api_prog.stop_flag is True:
             break
