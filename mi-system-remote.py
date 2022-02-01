@@ -657,7 +657,7 @@ def main():
                         print("SSL チェックをしない状態で接続します。")
                 except:
                     pass
-                auth_type = True
+                #auth_type = True
 
     api_prog = mi_remote(siteid, "%s:50443"%baseUrl, token, retry_count=retry_count, retry_interval=retry_interval)
 
