@@ -648,7 +648,7 @@ def main():
             if sys.argv[i].startswith("no_auth") is True:
                 try:
                     items = sys.argv[i].split(":")
-                    items = items.split(",")
+                    #items = items.split(",")
                     if len(items) == 2:
                         auth_type = items[1]
                         print("SSL 中間認証局情報(%s)を指定します。"%auth_type)
