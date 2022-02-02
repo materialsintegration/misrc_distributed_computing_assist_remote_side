@@ -1,4 +1,9 @@
 #!python3.6
+# Copyright (c) The University of Tokyo and
+# National Institute for Materials Science (NIMS). All rights reserved.
+# This document may not be reproduced or transmitted in any form,
+# in whole or in part, without the express written permission of
+# the copyright owners.
 # -*- coding: utf-8 -*-
 
 '''
@@ -608,12 +613,22 @@ def main():
         sys.exit(1)
 
     if len(sys.argv) <= 2:
-        print("python %s <site id> <base url> <token>")
+        print("")
+        print("Mintシステムワークフロー、外部計算機資源の有効活用、WebAPI方式用のポーリングプログラム")
         print("")
         print("Usage:")
-        print("      site id : 'nims-dev', 'rme-u-tokyo', 'uacj', 'ihi' and 'kobelco'の様な識別子")
-        print("      base url: MIntシステムのtop URL(e.g. https://nims.mintsys.jp or https://dev-u-tokyo.mintsys.jp)")
-        print("        token : 64文字のMIntシステムのAPIへアクセスするためのトークン")
+        print("python %s <site id> <base url> <token|login> [options]")
+        print("")
+        print("      site id : 'nims-dev'の様な識別子。WebAPI方式使用前に事前に取り決める。")
+        print("      base url: MIntシステムのtop URL(e.g. https://nims.mintsys.jp or https://nims-dev.mintsys.jp)")
+        print("      token   : 64文字のMIntシステムのAPIへアクセスするためのトークン")
+        print("              : ここにloginと指定すれば、トークンをログイン情報から取得する。要、ログインアプリ")
+        print("options")
+        print("      debug   : デバッグ用にステータスなど実行中の表示が多くなる")
+        print("      no_auth : SSL認証に関する指定を行う。")
+        print("                無指定はSSL認証有り。no_authだけならSSL認証無。")
+        print("                no_auth:ファイル（絶対パス）でこのファイルを中間認証局ファイルとして接続する。")
+        print("      port    : port:ポート番号、でデフォルトのポート番号50443を変更することが可能となる。")
         print(len(sys.argv))
         sys.exit(1)
 
