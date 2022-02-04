@@ -369,7 +369,7 @@ class mi_remote(object):
         command_name = self.calc_info["calc-info"]["command"]
         parameters = self.calc_info["calc-info"]["parameters"]
 
-        print("計算中...")
+        print("計算中...(%s)"%("/tmp/%s"%self.accept_id))
         # コマンド実行
         p = subprocess.Popen(command_name, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         #p.wait()
@@ -394,13 +394,11 @@ class mi_remote(object):
 
         # 標準出力
         outfile = open("計算標準出力.txt", "w")
-        for item in stdout_data:
-            outfile.write("%s\n"%item)
+        outfile.write("%s\n"%stdout_data)
         outfile.close()
         # 標準エラー
         outfile = open("計算標準エラー出力.txt", "w")
-        for item in stderr_data:
-            outfile.write("%s\n"%item)
+        outfile.write("%s\n"%stderr_data)
         outfile.close()
 
         #print(stdout_data)
@@ -410,6 +408,11 @@ class mi_remote(object):
         if result != 0:
             print("コマンド異常終了？")
             self.command_result = 1
+            # コマンド終了値が０でない場合(issue #3)
+            print("--------------標準出力")
+            print("%s"%stdout_data)
+            print("--------------標準エラー出力")
+            print("%s"%stderr_data)
             return False
         else:
             self.command_result = 0
@@ -476,6 +479,7 @@ class mi_remote(object):
         os.chdir("/tmp/%s"%self.accept_id)
         
         # 返すべきファイルの取得
+        is_return_files = False             # 返すべきファイルが全部ない場合はエラーとみなす
         for filename in self.calc_info["calc-info"]["result_files"]:
             # ファイルの種類を特定
             data['result_files'][filename] = self.calc_info["calc-info"]["result_files"][filename]
@@ -485,6 +489,9 @@ class mi_remote(object):
                 data['result_files'][filename]["mimetype2"] = "出力指定ファイル(%s)がありませんでした。"%filename
 
             else:
+                if filename != "計算標準エラー出力.txt" or filename != "計算標準出力.txt":
+                    # 標準出力または計算標準エラー出力以外のファイルで存在していれば
+                    is_return_files = True
                 p = subprocess.Popen("file -b -i %s"%filename, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 p.wait()
                 stdout_data = p.stdout.read()
@@ -526,6 +533,8 @@ class mi_remote(object):
             print("%s:status code = %s / reason = %s"%(datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S"), ret.status_code, ret.text))
             return False
 
+        if is_return_files == False:
+            return False
         return True
         
     def apiEndSend(self):
