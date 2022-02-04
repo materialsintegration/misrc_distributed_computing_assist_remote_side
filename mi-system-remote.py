@@ -277,7 +277,7 @@ class mi_remote(object):
         calc-params APIの実行
         '''
 
-        print("%s:send request %s/calc-params?accept_id=%s&site_id=%s"%(datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S"), self.base_url, self.accept_id, self.site_id))
+        print("%s:リクエスト(%s/calc-params?accept_id=%s&site_id=%s)を送信"%(datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S"), self.base_url, self.accept_id, self.site_id))
         #ret = self.session.get("%s/calc-params?accept_id=%s&site_id=%s"%(self.base_url, self.accept_id, self.site_id), headers=self.headers)
         ret = self.apiAccess("get", "%s/calc-params?accept_id=%s&site_id=%s"%(self.base_url, self.accept_id, self.site_id), headers=self.headers)
 
@@ -301,7 +301,7 @@ class mi_remote(object):
         data['accept_id'] = self.accept_id
         data['site_id'] = self.site_id
 
-        print("%s:send request %s/calc-params-complete"%(datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S"), self.base_url))
+        print("%s:リクエスト(%s/calc-params-complete)を送信"%(datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S"), self.base_url))
         #ret = self.session.post("%s/calc-params-complete"%self.base_url, headers=self.headers, json=data)
         ret = self.apiAccess("post", "%s/calc-params-complete"%self.base_url, headers=self.headers, json=data)
 
@@ -323,7 +323,7 @@ class mi_remote(object):
         data['accept_id'] = self.accept_id
         data['site_id'] = self.site_id
 
-        print("%s:send request %s/calc-start"%(datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S"), self.base_url))
+        print("%s:リクエスト(%s/calc-start)を送信"%(datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S"), self.base_url))
         #ret = self.session.post("%s/calc-start"%self.base_url, headers=self.headers, json=data)
         ret = self.apiAccess("post", "%s/calc-start"%self.base_url, headers=self.headers, json=data)
 
@@ -349,7 +349,7 @@ class mi_remote(object):
                 try:
                     outfile = open(filename, "w")
                 except:
-                    print("ファイル生成に失敗しました(ファイル名：%s）"%filename)
+                    print("\033[31mファイル生成に失敗しました(ファイル名：%s）\033[0m"%filename)
                     return False
 
                 outfile.write(base64.b64decode(self.calc_info["calc-info"]["parameter_files"][filename][0]).decode("utf-8"))
@@ -359,7 +359,7 @@ class mi_remote(object):
                 try:
                     outfile = open(filename, "bw")
                 except:
-                    print("ファイル生成に失敗しました(ファイル名：%s）"%filename)
+                    print("\033[31mファイル生成に失敗しました(ファイル名：%s）\033[0m"%filename)
                     return False
 
                 outfile.write(base64.b64decode(self.calc_info["calc-info"]["parameter_files"][filename][0].encode()))
@@ -416,7 +416,7 @@ class mi_remote(object):
         #result = stdout_data.decode("utf-8").split("\n")[0]
         result = p.returncode
         if is_return_files == False:
-            print("終了コードは(%s)ですが、出力に必要なファイが一つもありませんでした。"%result)
+            print("\033[31m終了コードは(%s)ですが、出力に必要なファイが一つもありませんでした。\033[0m"%result)
             result = 1
         else:
             print("実行結果（%s）"%result)
@@ -467,7 +467,7 @@ class mi_remote(object):
             #data['stdout'] = {'exists':'no'}
             #data['stderr'] = {'exists':'no'}
 
-        print("%s:send request %s/calc-end"%(datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S"), self.base_url))
+        print("%s:リクエスト(%s/calc-end)を送信"%(datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S"), self.base_url))
         ret = self.session.post("%s/calc-end"%self.base_url, headers=self.headers, json=data, verify=self.auth_type)
         ret = self.apiAccess("post", "%s/calc-end"%self.base_url, headers=self.headers, json=data)
 
@@ -524,7 +524,7 @@ class mi_remote(object):
         if self.debug_print is True:
             print(json.dumps(data, indent=2, ensure_ascii=False))
 
-        print("%s:send request %s/send-results"%(datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S"), self.base_url))
+        print("%s:リクエスト(%s/send-results)を送信"%(datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S"), self.base_url))
         #ret = self.session.post("%s/send-results"%self.base_url, headers=self.headers, json=data)
         ret = self.apiAccess("post", "%s/send-results"%self.base_url, headers=self.headers, json=data)
 
@@ -556,7 +556,7 @@ class mi_remote(object):
         data['site_id'] = self.site_id
         data['result'] = "end send"
 
-        print("%s:send request %s/end-send"%(datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S"), self.base_url))
+        print("%s:リクエスト(%s/end-send)を送信"%(datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S"), self.base_url))
         #ret = self.session.post("%s/end-send"%self.base_url, headers=self.headers, json=data)
         ret = self.apiAccess("post", "%s/end-send"%self.base_url, headers=self.headers, json=data)
 
