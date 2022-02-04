@@ -404,8 +404,7 @@ class mi_remote(object):
         # 終了判定：返すべきファイルの確認
         is_return_files = False             # 返すべきファイルが全部ない場合はエラーとみなす
         for filename in self.calc_info["calc-info"]["result_files"]:
-            # ファイルの種類を特定
-            data['result_files'][filename] = self.calc_info["calc-info"]["result_files"][filename]
+            # ファイルの存在を確認
             if os.path.exists(filename) is False:
                 print("出力指定ファイル(%s)がありませんでした。"%filename)
             else:
