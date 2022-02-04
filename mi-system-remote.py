@@ -469,7 +469,7 @@ class mi_remote(object):
 
         print("%s:リクエスト(%s/calc-end)を送信"%(datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S"), self.base_url))
         #ret = self.session.post("%s/calc-end"%self.base_url, headers=self.headers, json=data, verify=self.auth_type)
-        ret = self.apiAccess("post", "%s/calc-end"%self.base_url, headers=self.headers, json=data, verify=self.auth_type)
+        ret = self.apiAccess("post", "%s/calc-end"%self.base_url, headers=self.headers, json=data)
 
         #self.result_out(ret)
         if ("errors" in ret.json()) is True:
