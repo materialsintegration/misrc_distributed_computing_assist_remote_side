@@ -244,7 +244,7 @@ class mi_remote(object):
         '''
 
         if self.request_status is not False:
-            print("%s:send request %s/calc-request?site_id=%s"%(datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S"), self.base_url, self.site_id))
+            print("%s:リクエスト(%s/calc-request?site_id=%s)を送信"%(datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S"), self.base_url, self.site_id))
         if self.debug_print is True:
             print("%s:header = %s"%(datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S"), str(self.headers)))
         #ret = self.session.get("%s/calc-request?site_id=%s"%(self.base_url, self.site_id), headers=self.headers)
@@ -468,8 +468,8 @@ class mi_remote(object):
             #data['stderr'] = {'exists':'no'}
 
         print("%s:リクエスト(%s/calc-end)を送信"%(datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S"), self.base_url))
-        ret = self.session.post("%s/calc-end"%self.base_url, headers=self.headers, json=data, verify=self.auth_type)
-        ret = self.apiAccess("post", "%s/calc-end"%self.base_url, headers=self.headers, json=data)
+        #ret = self.session.post("%s/calc-end"%self.base_url, headers=self.headers, json=data, verify=self.auth_type)
+        ret = self.apiAccess("post", "%s/calc-end"%self.base_url, headers=self.headers, json=data, verify=self.auth_type)
 
         #self.result_out(ret)
         if ("errors" in ret.json()) is True:
