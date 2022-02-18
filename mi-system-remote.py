@@ -718,7 +718,7 @@ def main():
     print("site id = %s"%siteid)
     print("base url = %s:%s"%(baseUrl, portnum))
     print(" token = %s"%token)
-    print("calc_base = %s"&calc_base)
+    print("calc_base = %s"%calc_base)
     api_prog = mi_remote(siteid, "%s:%s"%(baseUrl, portnum), token, retry_count=retry_count, retry_interval=retry_interval)
 
     api_prog.request_status = None
