@@ -335,8 +335,8 @@ class mi_remote(object):
                 return False
 
         # 計算ディレクトリの変更
-        os.mkdir("/tmp/%s"%self.accept_id)
-        os.chdir("/tmp/%s"%self.accept_id)
+        os.mkdir("/%s/%s"%(self.calc_base, self.accept_id))
+        os.chdir("/%s/%s"%(self.calc_base, self.accept_id))
 
         # ファイルの取り出し
         for filename in self.calc_info["calc-info"]["parameter_files"]:
@@ -369,9 +369,11 @@ class mi_remote(object):
         command_name = self.calc_info["calc-info"]["command"]
         parameters = self.calc_info["calc-info"]["parameters"]
 
-        print("計算中...(%s)"%("/tmp/%s"%self.accept_id))
+        calc_env = os.environ.copy()
+        calc_env["CALC_DIR"] = "/%s/%s"%(self.calc_base, self.accept_id)
+        print("計算中...(%s)"%("/%s/%s"%(self.calc_base, self.accept_id)))
         # コマンド実行
-        p = subprocess.Popen(command_name, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = subprocess.Popen(command_name, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=calc_env)
         #p.wait()
         stdout_data = ""
         stderr_data = ""
@@ -491,7 +493,7 @@ class mi_remote(object):
         data['result_files'] = {}
 
         # 計算ディレクトリ
-        os.chdir("/tmp/%s"%self.accept_id)
+        os.chdir("/%s/%s"%(self.calc_base, self.accept_id))
         
         # 返すべきファイルの取得
         for filename in self.calc_info["calc-info"]["result_files"]:
@@ -647,6 +649,8 @@ def main():
         print("                無指定はSSL認証有り。no_authだけならSSL認証無。")
         print("                no_auth:ファイル（絶対パス）でこのファイルを中間認証局ファイルとして接続する。")
         print("      port    : port:ポート番号、でデフォルトのポート番号50443を変更することが可能となる。")
+        print("   calc_base  : 計算が行われるディレクトリのベース名。これにUUIDで生成したディレクトリ名が使われる。")
+        print("                デフォルトは/tmp")
         print(len(sys.argv))
         sys.exit(1)
 
@@ -658,6 +662,7 @@ def main():
     baseUrl = None
     auth_type = True
     portnum = "50443"
+    calc_base = "/tmp"
     for i in range(len(sys.argv)):
         if i == 1:
             #print("site id = %s"%sys.argv[1])
@@ -701,15 +706,25 @@ def main():
                 except:
                     pass
                 #auth_type = True
+            if sys.argv[i].startwswith("calc_base") is True:
+                try:
+                    items = sys.argv[i].split(":")
+                    if len(items) == 2:
+                        calc_base = items[1]
+                        print("計算ディレクトリのベースを%sにします。"%calc_base)
+                except:
+                    pass
 
     print("site id = %s"%siteid)
     print("base url = %s:%s"%(baseUrl, portnum))
     print(" token = %s"%token)
+    print("calc_base = %s"&calc_base)
     api_prog = mi_remote(siteid, "%s:%s"%(baseUrl, portnum), token, retry_count=retry_count, retry_interval=retry_interval)
 
     api_prog.request_status = None
     api_prog.debug_print = debug_print
     api_prog.auth_type = auth_type
+    api_prog.calc_base = calc_base
     while True:
         if api_prog.stop_flag is True:
             break
