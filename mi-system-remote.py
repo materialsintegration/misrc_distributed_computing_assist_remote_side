@@ -706,7 +706,7 @@ def main():
                 except:
                     pass
                 #auth_type = True
-            if sys.argv[i].startwswith("calc_base") is True:
+            if sys.argv[i].startswith("calc_base") is True:
                 try:
                     items = sys.argv[i].split(":")
                     if len(items) == 2:
