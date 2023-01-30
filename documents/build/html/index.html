@@ -1,0 +1,109 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <title>NIMS Super Computerを外部計算器資源として利用した報告書 &#8212; NIMS スパコンを外部計算器資源として利用した報告書 1.0 ドキュメント</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="_static/translations.js"></script>
+    <script src="https://unpkg.com/mermaid@8.0.0/dist/mermaid.min.js"></script>
+    
+    <link rel="search" title="検索" href="search.html" />
+    <link rel="next" title="1. 概要" href="NIMSのスパコン連携報告書.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="NIMSのスパコン連携報告書.html" title="1. 概要"
+             accesskey="N">次へ</a></li>
+        <li class="nav-item nav-item-0"><a href="#">NIMS スパコンを外部計算器資源として利用した報告書 1.0 ドキュメント</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="nims-super-computer">
+<h1>NIMS Super Computerを外部計算器資源として利用した報告書<a class="headerlink" href="#nims-super-computer" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<div class="toctree-wrapper compound" id="mastertoc">
+<p class="caption"><span class="caption-text">目次</span><a class="headerlink" href="#mastertoc" title="この目次へのパーマリンク">¶</a></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="NIMSのスパコン連携報告書.html">1. 概要</a></li>
+<li class="toctree-l1"><a class="reference internal" href="NIMSのスパコン連携報告書.html#nims">2. NIMSのスパコンシステムを外部計算対象とするには</a></li>
+<li class="toctree-l1"><a class="reference internal" href="NIMSのスパコン連携報告書.html#id2">3. 外部計算の流れ</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="NIMSのスパコン連携報告書.html#id3">3.1. 通常の形態</a></li>
+<li class="toctree-l2"><a class="reference internal" href="NIMSのスパコン連携報告書.html#id4">3.2. NIMS スパコン用の形態</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="NIMSのスパコン連携報告書.html#id5">4. 準備</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="NIMSのスパコン連携報告書.html#id6">4.1. アカウント開設</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="NIMSのスパコン連携報告書.html#id7">4.1.1. 中間計算機に関して</a></li>
+<li class="toctree-l3"><a class="reference internal" href="NIMSのスパコン連携報告書.html#id8">4.1.2. ポーリングスクリプト</a></li>
+<li class="toctree-l3"><a class="reference internal" href="NIMSのスパコン連携報告書.html#api">4.1.3. APIトークン</a></li>
+<li class="toctree-l3"><a class="reference internal" href="NIMSのスパコン連携報告書.html#id9">4.1.4. 識別子</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="NIMSのスパコン連携報告書.html#id10">4.2. ワークフローの準備</a></li>
+<li class="toctree-l2"><a class="reference internal" href="NIMSのスパコン連携報告書.html#id11">4.3. NIMS スパコン用に用意するもの</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="NIMSのスパコン連携報告書.html#id12">4.3.1. 事前処理プログラム</a></li>
+<li class="toctree-l3"><a class="reference internal" href="NIMSのスパコン連携報告書.html#id13">4.3.2. 事後処理プログラム</a></li>
+<li class="toctree-l3"><a class="reference internal" href="NIMSのスパコン連携報告書.html#qsub">4.3.3. qsubスクリプト</a></li>
+<li class="toctree-l3"><a class="reference internal" href="NIMSのスパコン連携報告書.html#id14">4.3.4. 環境変数</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="NIMSのスパコン連携報告書.html#id15">4.4. ポーリングスクリプトの実行</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="NIMSのスパコン連携報告書.html#id16">5. ランについて</a></li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="NIMSのスパコン連携報告書.html"
+                        title="次の章へ"><span class="section-number">1. </span>概要</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">クイック検索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="検索" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="NIMSのスパコン連携報告書.html" title="1. 概要"
+             >次へ</a></li>
+        <li class="nav-item nav-item-0"><a href="#">NIMS スパコンを外部計算器資源として利用した報告書 1.0 ドキュメント</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright National Institute for Materials Science (NIMS) and the University of Tokyo. All rights reserved.
+    </div>
+  </body>
+</html>

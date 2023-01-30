@@ -1,0 +1,15 @@
+build.log
+check_passwd.log
+Thumbs.db
+*.aux
+*.tex
+*.dvi
+*.toc
+*.idx
+*.out
+*.xdy
+*.sty
+*.cls
+*/build/latex/*.png
+doctrees
+

@@ -1,0 +1,353 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <title>1. 概要 &#8212; NIMS スパコンを外部計算器資源として利用した報告書 1.0 ドキュメント</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="_static/translations.js"></script>
+    <script src="https://unpkg.com/mermaid@8.0.0/dist/mermaid.min.js"></script>
+    
+    <link rel="search" title="検索" href="search.html" />
+    <link rel="prev" title="NIMS Super Computerを外部計算器資源として利用した報告書" href="index.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="index.html" title="NIMS Super Computerを外部計算器資源として利用した報告書"
+             accesskey="P">前へ</a></li>
+        <li class="nav-item nav-item-0"><a href="index.html">NIMS スパコンを外部計算器資源として利用した報告書 1.0 ドキュメント</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="id1">
+<h1><span class="section-number">1. </span>概要<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p>本書は、NIMS スパコンシステムを外部計算機としてMIntシステムのワークフローから利用した場合の検証結果と、
+実際に利用する場合の準備、用意するものなどをまとめたものである。</p>
+</div>
+<div class="section" id="nims">
+<h1><span class="section-number">2. </span>NIMSのスパコンシステムを外部計算対象とするには<a class="headerlink" href="#nims" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p>NIMSのスパコンでは長時間のログインまたはプログラムの実行が禁止されている。
+他方、外部計算はMIntシステムからSSHによるアクセスか、外部計算機からのAPIによるMIntシステムへのアクセスのどちらかしか利用方法がないが、
+前者はMIntシステムがDMZにあるため、直接SSHできない。
+後者は長時間プログラム実行が禁止されているため、利用できない。</p>
+<p>このため、中間にAPIでMIntシステムにアクセスでき、SSHでNIMS スパコンへアクセスできる計算機を用意し、ここでユーザーごとにAPIポーリングを行い、NIMS スパコンへはSSHで事前処理、qsub処理、事後処理をおこなう方法をとることとした。</p>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<p>事前処理、qsub処理、事後処理は予め利用ユーザーがシェルスクリプトの形で用意する。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<p>事前処理、事後処理はオプションであり、必要なければなくても良い。</p>
+</div>
+</div>
+<div class="section" id="id2">
+<h1><span class="section-number">3. </span>外部計算の流れ<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p>外部計算のうちAPIポーリングを利用した利用の流れを示す。</p>
+<div class="section" id="id3">
+<h2><span class="section-number">3.1. </span>通常の形態<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>標準的な外部計算実行のフローを <a class="reference internal" href="#auxialcalc-for-standard"><span class="std std-numref">図 1</span></a> に示す。</p>
+<ul class="simple">
+<li><p>ワークフロー → モジュール指定のプログラム（Ａ）の実行</p></li>
+<li><p>モジュール指定のプログラムは外部計算APIアクセススクリプトの起動→ API（Ｂ）へ</p></li>
+<li><p>外部計算機は外部計算機APIアクセスプログラム（Ｃ）を起動→ API（Ｂ）へ（ポーリング）</p></li>
+<li><p>外部計算機は外部計算機APIアクセスプログラム（Ｃ） →  外部計算機の特定のプログラム（Ｄ）を実行（API経由外部計算の実行）</p></li>
+</ul>
+<div class="figure align-center" id="id17">
+<span id="auxialcalc-for-standard"></span>
+            <style>
+            /* mermaid issue 527 workaround */
+            .section {
+                opacity: 1.0 !important;
+            }
+            </style>
+            <script>mermaid.initialize({startOnLoad:true});</script><div class="mermaid">
+            sequenceDiagram;
+
+  participant A as モジュール
+  participant B as プログラム（Ａ）
+  participant C as API（Ｂ）
+  participant D as プログラム（Ｃ）
+  participant E as プログラム（Ｄ）
+
+  Note over A,C : MIntシステム内（NIMS機構内）
+  Note over D,E : 外部計算機資源内
+
+  A-&gt;&gt;B:モジュールが実行
+  B-&gt;&gt;C:（Ａ）がhttps経由で実行
+  D-&gt;&gt;C:（Ｃ）がhttps経由で実行
+  D-&gt;&gt;E:（Ｃ）が実行
+        </div><p class="caption"><span class="caption-number">図 1 </span><span class="caption-text">標準的な外部計算実行のフロー</span><a class="headerlink" href="#id17" title="この画像へのパーマリンク">¶</a></p>
+</div>
+</div>
+<div class="section" id="id4">
+<h2><span class="section-number">3.2. </span>NIMS スパコン用の形態<a class="headerlink" href="#id4" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>NIMS スパコン向けの外部計算実行のフローを <a class="reference internal" href="#auxialcalc-for-nimssupercomputer"><span class="std std-numref">図 2</span></a> に示す。</p>
+<ul class="simple">
+<li><p>ワークフロー → モジュール指定のプログラム（Ａ）の実行</p></li>
+<li><p>モジュール指定のプログラム（Ａ）　は外部計算APIアクセススクリプトの起動→ API（Ｂ）へ</p></li>
+<li><p>外部計算用中間サーバー機は外部計算機APIアクセスプログラム（Ｃ）を起動→ API（Ｂ）へ（ポーリング）</p></li>
+<li><p>外部計算用中間サーバー機は外部計算機APIアクセスプログラム（Ｃ）→ 中間プログラム（Ｄ）を実行（API経由外部計算の実行）</p></li>
+<li><p>中間プログラム（Ｄ）→ 事前処理、qsub処理、事後処理（Ｅ）を実行</p></li>
+</ul>
+<div class="figure align-center" id="id18">
+<span id="auxialcalc-for-nimssupercomputer"></span>
+            <style>
+            /* mermaid issue 527 workaround */
+            .section {
+                opacity: 1.0 !important;
+            }
+            </style>
+            <div class="mermaid">
+            sequenceDiagram;
+
+  participant A as モジュール
+  participant B as プログラム（Ａ）
+  participant C as API（Ｂ）
+  participant D as プログラム（Ｃ）
+  participant E as プログラム（Ｄ）
+  participant F as プログラム（Ｅ）
+
+  Note over A,C : MIntシステム内
+  Note over D,E : 外部計算用中間サーバー
+  Note over F : NIMS スパコン
+
+  A-&gt;&gt;B:モジュールが実行
+  B-&gt;&gt;C:（Ａ）がhttps経由で実行
+  D-&gt;&gt;C:（Ｃ）がhttps経由で実行
+  D-&gt;&gt;E:（Ｃ）が実行
+  E-&gt;&gt;F: (Ｄ）が実行
+        </div><p class="caption"><span class="caption-number">図 2 </span><span class="caption-text">NIMS スパコン向け外部計算実行のフロー</span><a class="headerlink" href="#id18" title="この画像へのパーマリンク">¶</a></p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<p>黄色い四角の中のシステム、サーバーおよび計算機はすべてNIMS機構内にある。</p>
+</div>
+</div>
+</div>
+<div class="section" id="id5">
+<h1><span class="section-number">4. </span>準備<a class="headerlink" href="#id5" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p>準備は以下の順番で進める。
+概ね、通常の外部計算機利用のマニュアルに準じるが、NIMS スパコンの場合はその制限からいくつか違いがある。</p>
+<ul class="simple">
+<li><p>アカウント開設</p></li>
+<li><p>ワークフロー作成申請をA4班へ実装調査書の作成と送付</p></li>
+<li><p>NIMS スパコンで実行する必要のあるプログラム類は、事前処理、qsub処理、事後処理に分けて利用者が用意する。</p></li>
+<li><p>準備ができたら、ポーリングスクリプトを実行し、待機する。</p></li>
+</ul>
+<div class="section" id="id6">
+<h2><span class="section-number">4.1. </span>アカウント開設<a class="headerlink" href="#id6" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>アカウントなどの準備は以下のように進めるが、NIMS スパコンとA4班が用意する中間計算機が対象である。</p>
+<ul class="simple">
+<li><p>NIMS スパコンアカウントの開設。</p></li>
+<li><p>スパコン利用方法に則り利用者が行う。</p></li>
+<li><p>A4班が用意する中間計算機にアカウントを開設する。</p></li>
+<li><p>利用者がA4班に申請し、A4班側でアカウントを作成する。以降は利用者が実施する。</p>
+<ul>
+<li><p>ログインは公開鍵暗号方式とする。</p></li>
+<li><p>公開鍵を作成、申請時にA4班へ伝える。</p></li>
+<li><p>APIポーリングには専用の識別子が必要なので利用者側で決定し、申請時にA4班へ伝える。</p></li>
+<li><p>利用者のAPIトークンをA4班へ伝え、設定を行う。</p></li>
+</ul>
+</li>
+<li><p>ここにポーリングスクリプトを配置する必要がある。</p>
+<ul>
+<li><p>このスクリプトはA4班が運用するGithubリポジトリがあるので、そこからダウンロードする。</p></li>
+</ul>
+</li>
+</ul>
+<div class="section" id="id7">
+<h3><span class="section-number">4.1.1. </span>中間計算機に関して<a class="headerlink" href="#id7" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>サーバー名は、carta04.nims.go.jpである。アカウントはA4班へ申請し、作成はA4班が実施する。</p>
+</div>
+<div class="section" id="id8">
+<h3><span class="section-number">4.1.2. </span>ポーリングスクリプト<a class="headerlink" href="#id8" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>ポーリングスクリプトは、Githubから以下のようにgitコマンドを使ってcloneする。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd &lt;ポーリングスクリプトを配置したい場所&gt; $ git clone https://github.com/materialsintegration/misrc_distributed_computing_assist_remote_side.git``
+</pre></div>
+</div>
+</div>
+<div class="section" id="api">
+<h3><span class="section-number">4.1.3. </span>APIトークン<a class="headerlink" href="#api" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>このワークフローを利用するユーザーで、MIntシステムにログインし、ユーザープロファイル管理画面から取得できる。これをA4班へ伝える。
+利用するユーザーが複数いる場合はそれぞれ伝えること。</p>
+</div>
+<div class="section" id="id9">
+<h3><span class="section-number">4.1.4. </span>識別子<a class="headerlink" href="#id9" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>ポーリングシステムでは識別子でMIntシステムと外部計算機とを関連付ける。
+他にもいくつかあるので重複しないものであれば何でも良い。
+多くの場合企業名や部署名などをアルファベットで記述したものとすることが多い。
+本検証では、nims-supercom-a4としている。</p>
+</div>
+</div>
+<div class="section" id="id10">
+<h2><span class="section-number">4.2. </span>ワークフローの準備<a class="headerlink" href="#id10" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>ワークフローおよびMIntシステム側のプログラム類はA4班側で用意する。実装調査書を予め作成依頼するので、作成し、A4班へ提出する。</p>
+<p>ワークフローの準備ができたら、ワークフローIDを知らせるので、
+ポーリングスクリプトを実行開始し、お知らせしたワークフローIDのワークフローを実行する。</p>
+</div>
+<div class="section" id="id11">
+<h2><span class="section-number">4.3. </span>NIMS スパコン用に用意するもの<a class="headerlink" href="#id11" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>用意するのは以下の通り。</p>
+<ul class="simple">
+<li><p>事前処理プログラム（オプション）</p></li>
+<li><p>事後処理プログラム（オプション）</p></li>
+<li><p>qsubスクリプト（必須）</p></li>
+<li><p>環境変数 <strong>REMOTE_HOSTNAME</strong> の設定</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<p>用意するファイル名はA4班で指定したもの以外はA4班に知らせる必要はない。各プログラム内で整合性が取れていれば問題ない。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<p>ダウンロードしたポーリングスクリプトにresourcesディレクトリがあるので、ここに事前処理、事後処理、qsubスクリプトを用意する。（利用者）</p>
+</div>
+<div class="section" id="id12">
+<h3><span class="section-number">4.3.1. </span>事前処理プログラム<a class="headerlink" href="#id12" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>外部計算機で実行される。qsubスクリプト実行前の処理を別にする必要がある時に利用する。必要なければファイルを作成しない。
+ファイル名は、pre_process.shである。
+ダウンロードしたディレクトリの下に、resourcesディレクトリがあるので、ここへ配置する。</p>
+</div>
+<div class="section" id="id13">
+<h3><span class="section-number">4.3.2. </span>事後処理プログラム<a class="headerlink" href="#id13" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>外部計算機で実行される。qsubスクリプト実行後の処理を別にする必要がある時に利用する。必要なければファイルを作成しない。
+ファイル名は、post_process.shである。ダウンロードしたディレクトリの下に、resourcesディレクトリがあるので、ここへ配置する。</p>
+</div>
+<div class="section" id="qsub">
+<h3><span class="section-number">4.3.3. </span>qsubスクリプト<a class="headerlink" href="#qsub" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>このスクリプトファイルは必須である。
+qsub実行のためのスクリプトを記述する。
+ファイル名は、qsub_process.shである。ダウンロードしたディレクトリの下に、resoucesディレクトリがあるので、ここへ配置する。</p>
+</div>
+<div class="section" id="id14">
+<h3><span class="section-number">4.3.4. </span>環境変数<a class="headerlink" href="#id14" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>qsub実行するためのサーバー名を環境変数名 <strong>REMOTE_HOSTNAME</strong> で指定する。
+通常NIMS Super
+Computerへアクセスする時のホスト名でも可能であるが、<strong>~/.ssh/config</strong> などに設定したホスト名でも構わない。
+公開鍵暗号を指定したホスト名にしたい場合は通常指定するように、それも含めて設定しておく。
+設定場所は、<strong>~/.bashrc</strong> など。</p>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<p>ポーリングスクリプトはこの環境変数を設定した後に動作させる。</p>
+</div>
+</div>
+</div>
+<div class="section" id="id15">
+<h2><span class="section-number">4.4. </span>ポーリングスクリプトの実行<a class="headerlink" href="#id15" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>ポーリングは以下のようにして中間計算機にて実行する。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3.6 mi-system-remote.py &lt;識別子&gt; https://nims.mintsys.jp &lt;token&gt; calc_base:~/remote_calculation
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>実際のポーリング動作</p></li>
+<li><p>MIntシステムから外部計算への切り替え</p></li>
+<li><p>パラメータ送信</p></li>
+<li><p>パラメータ保存</p></li>
+<li><p>外部計算開始</p></li>
+<li><p>計算終了後、必要なファイルの受信</p></li>
+<li><p>MIntシステムへ結果の送信</p></li>
+<li><p>MIntシステムへ終了の通知</p></li>
+</ul>
+<p>実際にポーリング動作中の画面のイメージを <a class="reference internal" href="#polling-image"><span class="std std-numref">図 3</span></a> に示す。</p>
+<div class="figure align-center" id="polling-image">
+<a class="reference internal image-reference" href="_images/image.png"><img alt="_images/image.png" src="_images/image.png" style="width: 791.0px; height: 470.0px;" /></a>
+<p class="caption"><span class="caption-number">図 3 </span><span class="caption-text">APIポーリングの実行イメージ</span><a class="headerlink" href="#polling-image" title="この画像へのパーマリンク">¶</a></p>
+</div>
+</div>
+</div>
+<div class="section" id="id16">
+<h1><span class="section-number">5. </span>ランについて<a class="headerlink" href="#id16" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p>ランは通常のMIntシステムの実行によるものと変わらない。
+ラン詳細からの実行状況表示および完了後のダウンロードも通常のランと全く同じように扱える。</p>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<p>外部計算中の状況は中間計算機のポーリングスクリプトに「計算中」としか表示できない。</p>
+</div>
+<p>計算中のログは中間計算機の <strong>~/remote-calculation</strong> 以下にUUIDでできたディレクトリが作られるので、
+そこに「計算標準出力.txt」と「計算標準エラー出力.txt」というファイルで作成される。</p>
+<p>以上</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">目次</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">1. 概要</a></li>
+<li><a class="reference internal" href="#nims">2. NIMSのスパコンシステムを外部計算対象とするには</a></li>
+<li><a class="reference internal" href="#id2">3. 外部計算の流れ</a><ul>
+<li><a class="reference internal" href="#id3">3.1. 通常の形態</a></li>
+<li><a class="reference internal" href="#id4">3.2. NIMS スパコン用の形態</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id5">4. 準備</a><ul>
+<li><a class="reference internal" href="#id6">4.1. アカウント開設</a><ul>
+<li><a class="reference internal" href="#id7">4.1.1. 中間計算機に関して</a></li>
+<li><a class="reference internal" href="#id8">4.1.2. ポーリングスクリプト</a></li>
+<li><a class="reference internal" href="#api">4.1.3. APIトークン</a></li>
+<li><a class="reference internal" href="#id9">4.1.4. 識別子</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id10">4.2. ワークフローの準備</a></li>
+<li><a class="reference internal" href="#id11">4.3. NIMS スパコン用に用意するもの</a><ul>
+<li><a class="reference internal" href="#id12">4.3.1. 事前処理プログラム</a></li>
+<li><a class="reference internal" href="#id13">4.3.2. 事後処理プログラム</a></li>
+<li><a class="reference internal" href="#qsub">4.3.3. qsubスクリプト</a></li>
+<li><a class="reference internal" href="#id14">4.3.4. 環境変数</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id15">4.4. ポーリングスクリプトの実行</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id16">5. ランについて</a></li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="index.html"
+                        title="前の章へ">NIMS Super Computerを外部計算器資源として利用した報告書</a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">クイック検索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="検索" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="index.html" title="NIMS Super Computerを外部計算器資源として利用した報告書"
+             >前へ</a></li>
+        <li class="nav-item nav-item-0"><a href="index.html">NIMS スパコンを外部計算器資源として利用した報告書 1.0 ドキュメント</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright National Institute for Materials Science (NIMS) and the University of Tokyo. All rights reserved.
+    </div>
+  </body>
+</html>
